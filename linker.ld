@@ -16,6 +16,10 @@ PHDRS
 SECTIONS
 {
     .text : {
+        PROVIDE(_text_boot_start = .);
+        *(.text.boot)
+        PROVIDE(_text_boot_end = .);
+
         PROVIDE(_text_start = .);
         *(.text)
         PROVIDE(_text_end = .);        
@@ -30,6 +34,13 @@ SECTIONS
     } >ram AT>ram :text
 
     .data : {
+        . = ALIGN(0x1000);
+        PROVIDE(_mstack_bot = .);
+        *(.data.boot.mstack)
+        PROVIDE(_mstack_top = .);
+        
+        *(.data.boot)
+        
         . = ALIGN(0x1000);
         PROVIDE(_data_start = .);
         *(.data)
