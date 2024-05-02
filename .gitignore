@@ -2,3 +2,4 @@ u-boot/
 build/
 rootfs/
 .gdb_history
+.vscode/

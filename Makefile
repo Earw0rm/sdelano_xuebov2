@@ -1,7 +1,10 @@
 BUILD_DIR = ./build
 SOURCE_DIR = ./src
 CPREFIX ?=riscv64-unknown-elf-
-COPS =-Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -g
+COPS =-fno-pie -no-pie -Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -g -mcmodel=medany -mno-relax
+
+
+
 
 $(BUILD_DIR)/%_c.o: $(SOURCE_DIR)/%.c
 	mkdir -p $(@D)
