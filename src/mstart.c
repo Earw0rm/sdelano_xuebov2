@@ -1,7 +1,11 @@
 #include "uart.h"
 
 
-void mstart(void){
+void mstart(uint8_t mhartid){
+    if(mhartid != 0){
+        while(1);
+    }
+    
     init_uart();
 
 
