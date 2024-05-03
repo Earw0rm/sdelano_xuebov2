@@ -36,7 +36,7 @@ SECTIONS
     .data : {
         . = ALIGN(0x1000);
         PROVIDE(_mstack_bot = .);
-        *(.data.boot.mstack)
+        . += 0x4000;
         PROVIDE(_mstack_top = .);
         
         *(.data.boot)
