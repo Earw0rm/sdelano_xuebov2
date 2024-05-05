@@ -15,7 +15,7 @@ extern void timervec(void);
 extern void kernelvec(void);
 
 void sstart(void){
-    // uart_send("Hello world!\r\n");
+    
     while(1);
 }
 

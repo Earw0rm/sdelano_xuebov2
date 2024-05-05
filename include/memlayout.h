@@ -29,5 +29,9 @@
 #define CLINT_MTIMECMP(hartid) (CLINT + 0x4000 + 8*(hartid))
 #define CLINT_MTIME (CLINT + 0xBFF8) 
 
+#define PHYMEMSTART 0x80000000
+#define PHYMEMEND   0x87ffffff
+
+
 
 #endif 
