@@ -8,16 +8,16 @@ _start:
     csrr t0, mhartid
     addi t0, t0, 1
     slli t0, t0, 12 
-    la   sp, _mstack_bot
+    la   sp, stack0
     add  sp, sp, t0 
 
     la gp, _global_pointer
 
     csrr a0, mhartid
     bnez a0, _wait_zero_bss
-_zero_bss:
     la t1, _bss_start
     la t2, _bss_end
+_zero_bss:
     sub t3, t2, t1
     beqz t3, _break_zero_bss
     sd x0, (t1)

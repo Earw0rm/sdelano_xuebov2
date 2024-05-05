@@ -54,7 +54,10 @@
 //When TSR=0, this operation is permitted in S-mode.
 #define TSR (0 << 22)
 
-#define INIT_MSTATUS_VAL (MPIE | MPP | MIE | MXR | MPRV | SUM | TVM | TW | TSR)
+#define SPIE (1 << 5)
+#define SIE  (1 << 1)
+
+#define INIT_MSTATUS_VAL (MPIE | MPP | MIE | MXR | MPRV | SUM | TVM | TW | TSR | SPIE | SIE)
 
 static inline uint64_t
 r_mstatus(void)
@@ -70,6 +73,20 @@ w_mstatus(uint64_t x)
   asm volatile("csrw mstatus, %0" : : "r" (x));
 }
 
+
+static inline uint64_t
+r_sstatus(void)
+{
+  uint64_t x;
+  asm volatile("csrr %0, sstatus" : "=r" (x) );
+  return x;
+}
+
+static inline void 
+w_sstatus(uint64_t x)
+{
+  asm volatile("csrw sstatus, %0" : : "r" (x));
+}
 
 
 /**
@@ -182,6 +199,15 @@ r_mip(void)
   return x;
 }
 
+static inline uint64_t
+r_mhartid(void)
+{
+  uint64_t x;
+  asm volatile("csrr %0, mhartid" : "=r" (x) );
+  return x;
+}
+
+
 
 static inline void 
 w_pmpaddr0(uint64_t x)
@@ -214,9 +240,68 @@ r_sie(void)
   asm volatile("csrr %0, sie" : "=r" (x) );
   return x;
 }
+
 static inline void 
 w_sie(uint64_t x)
 {
   asm volatile("csrw sie, %0" : : "r" (x));
 }
+
+static inline void 
+w_stvec(uint64_t x)
+{
+  asm volatile("csrw stvec, %0" : : "r" (x));
+}
+
+static inline void 
+w_mtvec(uint64_t x)
+{
+  asm volatile("csrw mtvec, %0" : : "r" (x));
+}
+
+
+static inline void 
+w_mscratch(uint64_t x)
+{
+  asm volatile("csrw mscratch, %0" : : "r" (x));
+}
+
+static inline void 
+w_tp(uint64_t x)
+{
+  asm volatile("mv tp, %0" : : "r" (x));
+}
+
+static inline void 
+w_sip(uint64_t x)
+{
+  asm volatile("csrw sip, %0" : : "r" (x));
+}
+
+static inline uint64_t
+r_sip(void)
+{
+  uint64_t x;
+  asm volatile("csrr %0, sip" : "=r" (x) );
+  return x;
+}
+
+static inline uint64_t
+r_scause(void)
+{
+  uint64_t x;
+  asm volatile("csrr %0, scause" : "=r" (x) );
+  return x;
+}
+
+static inline void
+intr_off(void){
+  w_sstatus(r_sstatus() & ~2); 
+}
+
+static inline void
+intr_on(void){
+  w_sstatus(r_sstatus() | 2); 
+}
+
 #endif 

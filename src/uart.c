@@ -1,5 +1,9 @@
 #include "uart.h"
 #include "common.h"
+#include "speenlock.h"
+
+
+struct speenlock uart_lock;
 
 #define UART ((struct ns16550a *)(0x10000000))
 
@@ -28,4 +32,10 @@ void uart_send_unsafe(char * str){
             ++str;
         }
     }
+}
+
+void uart_send(char * str){
+    acquire(&uart_lock);
+        uart_send_unsafe(str);
+    release(&uart_lock);
 }

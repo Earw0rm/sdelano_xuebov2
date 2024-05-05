@@ -37,6 +37,7 @@ struct ns16550a{
 void init_uart(void);
 
 void uart_send_unsafe(char * str);
+void uart_send(char * str);
 
 
 #endif 
