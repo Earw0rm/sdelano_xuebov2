@@ -2,7 +2,7 @@
 #include "riscv.h"
 #include "memlayout.h"
 #include "param.h"
-
+#include "vm.h"
 
 // entry.S needs one stack per CPU.
 __attribute__ ((aligned (16))) char stack0[4096 * NCPU];
@@ -15,7 +15,7 @@ extern void timervec(void);
 extern void kernelvec(void);
 
 void sstart(void){
-    
+
     while(1);
 }
 
@@ -60,22 +60,17 @@ void mstart(uint8_t mhartid){
 
     w_mepc((uint64_t) sstart);
 
-    w_satp(0);
     w_medeleg(0xffff);
     w_mideleg(0xffff);
 
-
     w_pmpaddr0(0x3fffffffffffffull);
     w_pmpcfg0(0xf);
-
-
-
 
     timerinit();
 
     w_stvec((uint64_t) kernelvec);
     w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE);
-
+    w_satp(KSTVEC_MODE | KSTVEC_ASID | kpgtbl_init());
 
     asm volatile("mret");
 }

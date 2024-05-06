@@ -32,6 +32,8 @@
 #define PHYMEMSTART 0x80000000
 #define PHYMEMEND   0x87ffffff
 
+extern char _kernel_start;
+extern char _kernel_end;
 
 
 #endif 

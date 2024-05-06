@@ -15,6 +15,7 @@ PHDRS
 
 SECTIONS
 {
+    PROVIDE(_kernel_start = .);
     .text : {
         PROVIDE(_text_boot_start = .);
         *(.text.boot)
@@ -53,4 +54,6 @@ SECTIONS
         PROVIDE(_bss_end = .);
     } >ram AT>ram :bss
 
+    . = ALIGN(0x1000);
+    PROVIDE(_kernel_end = .);
 }

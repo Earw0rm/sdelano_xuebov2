@@ -247,11 +247,7 @@ w_sie(uint64_t x)
   asm volatile("csrw sie, %0" : : "r" (x));
 }
 
-static inline void 
-w_stvec(uint64_t x)
-{
-  asm volatile("csrw stvec, %0" : : "r" (x));
-}
+
 
 static inline void 
 w_mtvec(uint64_t x)
@@ -302,6 +298,24 @@ intr_off(void){
 static inline void
 intr_on(void){
   w_sstatus(r_sstatus() | 2); 
+}
+
+
+#define KSTVEC_MODE (8ull << 60) //Sv39
+#define KSTVEC_ASID (0ull << 44)
+
+#define STVEC_PPN_MASK ((1 << 44) - 1)
+
+static inline void 
+w_stvec(uint64_t x){
+  asm volatile("csrw stvec, %0" : : "r" (x));
+}
+
+static inline uint64_t
+r_stvec(void){
+  uint64_t x;
+  asm volatile("csrr %0, stvec" : "=r" (x) );
+  return x;
 }
 
 #endif 
