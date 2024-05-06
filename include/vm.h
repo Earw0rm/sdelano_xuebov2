@@ -27,6 +27,7 @@
 
 #define PTE_XWRDA (PTE_X | PTE_W | PTE_R | PTE_D | PTE_A)
 
+#define PTE_FLAG_MASK ((1 << 8) - 1)
 
 #define ADDRROUNDDOWN(addr) ((addr) & ~(4096 - 1))
 
@@ -35,7 +36,7 @@ typedef  uint64_t  pte_t;
 
 pte_t * walk(uint64_t va, pagetable_t pgtbl, bool alloc);
 int8_t mapva(uint64_t va, uint64_t pa, pagetable_t pgtbl, uint16_t flags, bool alloc);
-void pgtbl_print(pagetable_t pgtbl);
+void ppgtbl(pagetable_t pgtbl);
 
 uint64_t kpgtbl_init(void);
 #endif 

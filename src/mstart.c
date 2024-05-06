@@ -1,4 +1,4 @@
-#include "uart.h"
+#include "printf.h"
 #include "riscv.h"
 #include "memlayout.h"
 #include "param.h"
@@ -42,13 +42,11 @@ timerinit(){
     // enable global intr
     w_mstatus(r_mstatus() | (1 << 3));
 }
-void shittrap(void){
-    uart_send("shittrap\r\n");
-}
+
 
 void mstart(uint8_t mhartid){
     if(mhartid == 0){
-        init_uart();
+        init_printf();
     }
 
     w_tp(mhartid);
@@ -66,11 +64,23 @@ void mstart(uint8_t mhartid){
     w_pmpaddr0(0x3fffffffffffffull);
     w_pmpcfg0(0xf);
 
-    timerinit();
+
 
     w_stvec((uint64_t) kernelvec);
     w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE);
-    w_satp(KSTVEC_MODE | KSTVEC_ASID | kpgtbl_init());
 
+
+
+    pagetable_t pgtbl = (pagetable_t)kpgtbl_init();
+
+
+    w_satp(KSTVEC_MODE | KSTVEC_ASID | (uint64_t)pgtbl);
+
+    if(mhartid == 0){
+        ppgtbl(pgtbl);
+    }
+
+
+    timerinit();
     asm volatile("mret");
 }

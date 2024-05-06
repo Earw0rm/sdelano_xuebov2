@@ -39,3 +39,9 @@ void uart_send(char * str){
         uart_send_unsafe(str);
     release(&uart_lock);
 }
+
+void putc(void* p, char c){
+    char* str;
+    *(str) = c;
+    uart_send_unsafe(str);
+}
