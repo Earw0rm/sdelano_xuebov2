@@ -213,8 +213,8 @@ void tfp_format(void* putp,putcf putf,char *fmt, va_list va)
 
 void init_printf(void){
     init_uart();
-    stdout_putf=0;
-    stdout_putp=putc;
+    stdout_putf=putc;
+    stdout_putp=0;
 }
 
 

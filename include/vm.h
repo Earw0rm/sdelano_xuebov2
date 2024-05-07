@@ -25,7 +25,7 @@
 #define PTE_D (1 << 7)
 #define PTE_A (1 << 6)
 
-#define PTE_XWRDA (PTE_X | PTE_W | PTE_R | PTE_D | PTE_A)
+#define PTE_XWRDA (PTE_X | PTE_W | PTE_R )
 
 #define PTE_FLAG_MASK ((1 << 8) - 1)
 

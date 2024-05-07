@@ -34,6 +34,7 @@ void uart_send_unsafe(char * str){
     }
 }
 
+
 void uart_send(char * str){
     acquire(&uart_lock);
         uart_send_unsafe(str);
@@ -41,7 +42,13 @@ void uart_send(char * str){
 }
 
 void putc(void* p, char c){
-    char* str;
-    *(str) = c;
-    uart_send_unsafe(str);
+    uint64_t waiting_cycles = 0;
+    while((UART->lsr & (0x1 << 5)) == 0){
+        ++waiting_cycles;
+        if(waiting_cycles == 10000000){
+            //panic
+            return;
+        }
+    }
+    UART->rbr_thr_dll = c;
 }

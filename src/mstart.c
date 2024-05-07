@@ -71,13 +71,13 @@ void mstart(uint8_t mhartid){
 
 
 
-    pagetable_t pgtbl = (pagetable_t)kpgtbl_init();
+    uint64_t pgtbl = kpgtbl_init();
 
 
-    w_satp(KSTVEC_MODE | KSTVEC_ASID | (uint64_t)pgtbl);
+    w_satp(KSTVEC_MODE | KSTVEC_ASID | pgtbl >> 12);
 
     if(mhartid == 0){
-        ppgtbl(pgtbl);
+        ppgtbl((pagetable_t) pgtbl);
     }
 
 
