@@ -53,21 +53,20 @@ uservec:
 
     # now all context are saved    
     # load kernel stack, kernel pagetable and kernel trapvector
-    csrr t1, sscratch
-    ld t0, 40(t1) # kpgtbl addr without 12 shift
-    ld t2, 48(t1) # ksp 
-    
-    mv sp, t2
-    
-    ld t2, 56(t1)
-    csrw t2, stvec 
 
-    srli t0, t0, 12
-    csrw t0, satp
+    ld sp, 264(t1) # kpgtbl addr without 12 shift
+
+    ld t0, 272(t1)
+    csrw t0, stvec 
+
+    ld t2, 256(t1) # ksp 
+    srli t2, t2, 12
+    csrw t2, satp
 
     sfense.vma x0, x0
 
     call usertrap    #trap.c
+
 .globl uservec
 uservecret:
     csrr t0, sscratch
@@ -109,16 +108,15 @@ uservecret:
     csrw t1, sepc
 
     ## set vector and user pagetable
-    la t0, uservec
-    csrw t0, stvec 
+    la t1, uservec
+    csrw t1, stvec 
 
     csrr t0, sscratch
     ld t1, 8(t0)
     csrw t1, satp 
     sfense.vma x0, x0
 
-    ld t0, 0(t0) #trapframe again 
-
+    la t0, TRAPFRAME 
     ld t1, 40(t0)
     ld t0, 32(t0)
     sret    

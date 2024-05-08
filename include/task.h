@@ -47,6 +47,7 @@ struct trapframe{
     uint64_t kpgtbl; // 256(cpu)
     uint64_t ksp; // 264(cpu)
     uint64_t kernelvec; // 272
+    uint64_t ret0; // 280
 };
 
 struct task{
