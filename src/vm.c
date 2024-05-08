@@ -45,11 +45,9 @@ int8_t mapva(uint64_t va, uint64_t pa, pagetable_t pgtbl,  uint16_t flags, bool 
 }
 
 uint64_t kpgtbl_init(void){
+
     uint8_t id = r_mhartid();
     pagetable_t pgtbl = (pagetable_t)&(kpgtbl[id << 12]);
-
-
-
 
     for(char * pointer = &_kernel_start; pointer < &_kernel_end; pointer += 0x1000){
         int8_t res = mapva((uint64_t) pointer, (uint64_t) pointer, pgtbl, PTE_XWRDA, true);
@@ -67,7 +65,7 @@ void pagetable_debug(pagetable_t pgtbl, uint64_t level){
             for(uint8_t j = 2; j > level; --j){
                 printf("\t");
             }
-            
+
             printf("ind:%x, val:%x, pte2pa:%x \r\n", i, val, PTE2PA(val));
 
 

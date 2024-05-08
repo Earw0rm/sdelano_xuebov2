@@ -3,12 +3,17 @@
 #include "memlayout.h"
 #include "param.h"
 #include "vm.h"
+#include "task.h"
+
 
 // entry.S needs one stack per CPU.
 __attribute__ ((aligned (16))) char stack0[4096 * NCPU];
 
 // a scratch area per CPU for machine-mode timer interrupts.
 uint64_t timer_scratch[NCPU][5];
+
+struct cpu cpus[NCPU] = {0};
+
 
 // assembly code in kernelvec.S for machine-mode timer interrupt.
 extern void timervec(void);
@@ -66,15 +71,13 @@ void mstart(uint8_t mhartid){
 
 
 
+    //supervisor
     w_stvec((uint64_t) kernelvec);
     w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE);
-
-
-
     uint64_t pgtbl = kpgtbl_init();
+    w_satp(KSTVEC_MODE | KSTVEC_ASID | pgtbl >> 12); 
 
-
-    w_satp(KSTVEC_MODE | KSTVEC_ASID | pgtbl >> 12);
+    w_sscratch((uint64_t)&cpus[mhartid]);
 
     if(mhartid == 0){
         ppgtbl((pagetable_t) pgtbl);

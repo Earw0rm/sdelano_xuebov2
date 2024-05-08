@@ -41,6 +41,12 @@ struct trapframe{
     uint64_t t4; //224(sp)
     uint64_t t5; //232(sp)
     uint64_t t6; //240(sp)
+
+    uint64_t sepc; //248(sp)
+    
+    uint64_t kpgtbl; // 256(cpu)
+    uint64_t ksp; // 264(cpu)
+    uint64_t kernelvec; // 272
 };
 
 struct task{
@@ -49,6 +55,12 @@ struct task{
     task_state state;
     uint64_t preempt_count;
     bool pure;
+
+    uint8_t padding[8];
+};
+
+struct cpu{
+    struct task current_task; // 0(cpu)
 };
 
 

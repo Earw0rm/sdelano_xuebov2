@@ -20,10 +20,18 @@ SECTIONS
         PROVIDE(_text_boot_start = .);
         *(.text.boot)
         PROVIDE(_text_boot_end = .);
-
         PROVIDE(_text_start = .);
         *(.text)
-        PROVIDE(_text_end = .);        
+        PROVIDE(_text_end = .);     
+
+        . += 0x1000;
+        . = ALIGN(0x1000);
+        PROVIDE(_trampoline_start = .);
+        *(.trampoline)
+        PROVIDE(_trampoline_end = .);
+        
+        . += 0x1000;
+        . = ALIGN(0x1000);
     } >ram AT>ram :text
 
     PROVIDE(_global_pointer = .);

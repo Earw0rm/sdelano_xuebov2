@@ -228,14 +228,27 @@ w_satp(uint64_t x)
   asm volatile("csrw satp, %0" : : "r" (x));
 }
 
+static inline void 
+w_sscratch(uint64_t x){
+  asm volatile("csrw sscratch, %0" : : "r" (x));
+}
+
+
+static inline uint64_t
+r_sscratch(void){
+  uint64_t x;
+  asm volatile("csrr %0, sscratch" : "=r" (x) );
+  return x;
+}
+
+
 
 #define SIE_SEIE (1L << 9) // external
 #define SIE_STIE (1L << 5) // timer
 #define SIE_SSIE (1L << 1) // software
 
 static inline uint64_t
-r_sie(void)
-{
+r_sie(void){
   uint64_t x;
   asm volatile("csrr %0, sie" : "=r" (x) );
   return x;
