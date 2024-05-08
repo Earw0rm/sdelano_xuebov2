@@ -64,11 +64,25 @@ struct task user_task_create(uint8_t (*main)(void)){
 
     pagetable_t upgtbl = (pagetable_t) allocpage();
     memset((void *) upgtbl, 0, 0x1000);
-
-    uint64_t ustack = allocpage();
-    memset((void *) ustack, 0, 0x1000);
+    task.pgtbl = (uint64_t) upgtbl;
 
     uint64_t trapframe = allocpage();
     memset((void *) trapframe, 0, 0x1000);
+    task.trapframe = (struct trapframe *) trapframe;
+
+    uint64_t ustack = allocpage();
+    memset((void *) ustack, 0, 0x1000);
+    task.trapframe->sp = ustack;
+
+    // task.trapframe->kpgtbl = 
+
+    // 1) set kpgtbl and kernel vec
+    // 2) подумать о том как хранить адреса таблицы страниц. Сдвинутые, не сдвинутые, и тд. 
+
+
+    // for(char * pointer = &_kernel_start; pointer < &_kernel_end; pointer += 0x1000){
+    //     int8_t res = mapva((uint64_t) pointer, (uint64_t) pointer, pgtbl, PTE_XWRDA, true);
+    //     if(res < 0) return -1;
+    // }
 
 }

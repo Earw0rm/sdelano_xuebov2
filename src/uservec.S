@@ -54,12 +54,13 @@ uservec:
     # now all context are saved    
     # load kernel stack, kernel pagetable and kernel trapvector
 
-    ld sp, 264(t1) # kpgtbl addr without 12 shift
+    ld sp, 264(t1) 
 
     ld t0, 272(t1)
     csrw t0, stvec 
 
-    ld t2, 256(t1) # ksp 
+    ld t2, 256(t1) 
+
     srli t2, t2, 12
     csrw t2, satp
 
@@ -72,10 +73,14 @@ uservecret:
     csrr t0, sscratch
     ld t0, 0(t0)
     
+    #store kernel stack pointer before return to user mode
+    sd sp, 264(t0) 
+
     ld ra, 0(t0)
     ld sp, 8(t0)
     ld gp, 16(t0)
     # not tp (contains hartid), in case we moved CPUs
+    # we need to set tp in that task before we call this function 
     # ld t0, 32(t0)
     # ld t1, 40(t0)
     ld t2, 48(t0)
@@ -113,7 +118,9 @@ uservecret:
 
     csrr t0, sscratch
     ld t1, 8(t0)
+    srli t1, t1, 12
     csrw t1, satp 
+    
     sfense.vma x0, x0
 
     la t0, TRAPFRAME 
