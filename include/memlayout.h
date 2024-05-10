@@ -37,11 +37,16 @@ extern char _kernel_end;
 
 extern char _trampoline_start;
 extern char _trampoline_end;
+extern char _text_end;
+
+
+extern char kernelvec[];
 
 #define UMEMSTART  0x0
 #define UMEMEND    0x10000000
 
-#define TRAMPOLINE 0xffffff0000
+#define TRAMPOLINE 0x80020000ull
 #define USTACK     0x10001000
+
 
 #endif 

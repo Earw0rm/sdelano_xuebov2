@@ -4,7 +4,10 @@
 #include "riscv.h"
 #include "utils.h"
 #include "printf.h"
-__attribute__ ((aligned (0x1000))) char kpgtbl[0x4000] = {0};
+#include "param.h"
+
+
+__attribute__ ((aligned (0x1000))) char kpgtbl[0x1000 * NCPU] = {0};
 
 
 pte_t * walk(uint64_t va, pagetable_t pgtbl, bool alloc){
@@ -55,8 +58,7 @@ uint64_t kpgtbl_init(void){
         if(map_res < 0) return -1;
     }
 
-    map_res = mapva(TRAMPOLINE, (uint64_t) &_trampoline_start, pgtbl, PTE_XWRDA, true);
-
+    map_res = mapva(TRAMPOLINE, (uint64_t) kernelvec, pgtbl, PTE_XWRDA, true);
 
     return (uint64_t) pgtbl;
 }

@@ -38,7 +38,7 @@ qemu_dump:
 	dtc -I dtb -O dts -o $(BUILD_DIR)/qemu-virt.dts $(BUILD_DIR)/qemu-virt.dtb
 
 qemu: clean all
-	qemu-system-riscv64 -s -S -machine virt -cpu rv64 \
+	/home/foer/Documents/qemu-9.0.0/build/qemu-system-riscv64 -s -S -machine virt -cpu rv64 \
 	 -smp 4 -m 128M -nographic \
 	 -serial mon:stdio -bios none -kernel $(BUILD_DIR)/kernel.elf 
 
