@@ -24,6 +24,7 @@
 #define PTE_R (1 << 1)
 #define PTE_D (1 << 7)
 #define PTE_A (1 << 6)
+#define PTE_U (1 << 4)
 
 #define PTE_XWRDA (PTE_X | PTE_W | PTE_R )
 

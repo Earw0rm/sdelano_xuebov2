@@ -35,13 +35,13 @@
 extern char _kernel_start;
 extern char _kernel_end;
 
+extern char _trampoline_start;
+extern char _trampoline_end;
 
 #define UMEMSTART  0x0
 #define UMEMEND    0x10000000
 
-
+#define TRAMPOLINE 0xffffff0000
 #define USTACK     0x10001000
-#define TRAMPOLINE 0x10002000
 
-#define TRAPFRAME  0x10003000
 #endif 

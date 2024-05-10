@@ -48,11 +48,15 @@ uint64_t kpgtbl_init(void){
 
     uint8_t id = r_mhartid();
     pagetable_t pgtbl = (pagetable_t)&(kpgtbl[id << 12]);
+    int8_t map_res;
 
     for(char * pointer = &_kernel_start; pointer < &_kernel_end; pointer += 0x1000){
-        int8_t res = mapva((uint64_t) pointer, (uint64_t) pointer, pgtbl, PTE_XWRDA, true);
-        if(res < 0) return -1;
+        map_res = mapva((uint64_t) pointer, (uint64_t) pointer, pgtbl, PTE_XWRDA, true);
+        if(map_res < 0) return -1;
     }
+
+    map_res = mapva(TRAMPOLINE, (uint64_t) &_trampoline_start, pgtbl, PTE_XWRDA, true);
+
 
     return (uint64_t) pgtbl;
 }

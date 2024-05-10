@@ -1,5 +1,5 @@
-#ifndef _SCHEDULER_H
-#define _SCHEDULER_H
+#ifndef _TASK_H
+#define _TASK_H
 
 #include "common.h"
 
@@ -13,7 +13,7 @@ struct trapframe{
     uint64_t ra; // 0(sp)
     uint64_t sp; // 8(sp)
     uint64_t gp; // 16(sp)
-    uint64_t tp; // 24(sp) #last time we in tp
+    uint64_t tp; // 24(sp)
     uint64_t t0; // 32(sp)
     uint64_t t1; // 40(sp)
     uint64_t t2; // 48(sp)
@@ -42,27 +42,26 @@ struct trapframe{
     uint64_t t5; //232(sp)
     uint64_t t6; //240(sp)
 
-    uint64_t sepc; //248(sp)
-    
-    uint64_t kpgtbl; // 256(cpu)
-    uint64_t ksp; // 264(cpu)
-    uint64_t kernelvec; // 272
-    uint64_t ret0; // 280
+    uint64_t sepc;    // 248(sp)
+    uint64_t sstatus; // 256
 };
 
 struct task{
-    struct trapframe * trapframe;
-    uint64_t pgtbl;
-    task_state state;
-    uint64_t preempt_count;
-    bool pure;
+    uint64_t stack; // 0
+    uint64_t satp; //  8
+    uint64_t ret0; // 16
 
+    bool pure;
     uint8_t padding[8];
 };
 
 struct cpu{
-    struct task current_task; // 0(cpu)
+    struct task current_task; 
+    uint64_t ksatp;  // 32 (cpu)
+    uint64_t kstack; // 40
 };
+
+
 
 
 #endif 

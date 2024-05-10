@@ -1,3 +1,4 @@
+.section .text
 .globl timervec
 .align 4
 timervec:
@@ -21,9 +22,10 @@ timervec:
     csrrw a0, mscratch, a0
     mret
 
+.section .trampoline
 .globl kernelvec
 .align 4
-kernelvec:
+kernelvec: # traframe 
     addi sp, sp, -256
     sd ra, 0(sp)
     sd sp, 8(sp)
@@ -57,13 +59,45 @@ kernelvec:
     sd t5, 232(sp)
     sd t6, 240(sp)
 
+    csrr t0, sepc 
+    sd t0, 248(sp)
+
+    csrr t0, sstatus
+    sd t0, 256(sp)
+
+    # context saved
+    # change to kernel pgtbl
+    csrr t0, satp 
+    mv   t1, sp 
+    csrr t2, sscratch
+
+    addi t3, t2, 32
+    csrw satp, t3 
+    sfence.vma x0, x0
+
+    #change to kernel stack 
+    addi t3, t3, 8
+    mv sp, t3   
+
+    #save uset stack and pagetable
+    sd t1, 0(t2)
+    sd t0, 8(t2)
+
     call kerneltrap    #trap.c
+.globl kernelvecret
+kernelvecret: # traframe нам надо взять наш стэк с начала и нашу таблицу страниц 
+    csrr t0, sscratch
+    mv sp, t0 
+
+    addi t0, t0, 8
+    csrw satp, t0
+
+    sfence.vma x0, x0 
 
     ld ra, 0(sp)
-    ld sp, 8(sp)
     ld gp, 16(sp)
     # not tp (contains hartid), in case we moved CPUs
-    ld t0, 32(sp)
+    # ld t0, 32(sp)
     ld t1, 40(sp)
     ld t2, 48(sp)
     ld s0, 56(sp)
@@ -91,5 +125,13 @@ kernelvec:
     ld t5, 232(sp)
     ld t6, 240(sp)
 
-    addi sp, sp, 256
+    ld t0, 248(sp)
+    csrw sepc, t0 
+
+    ld t0, 256(sp)
+    csrw sstatus, t0 
+
+    ld t0, 32(sp)
+
+    addi sp, sp, 272
     sret    

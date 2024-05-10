@@ -3,6 +3,10 @@
 #include "utils.h"
 #include "param.h"
 #include "paalloc.h"
+#include "vm.h"
+#include "memlayout.h"
+#include "printf.h"
+#include "riscv.h"
 
 struct speenlock tasks_lock = {
     .cpu_num = -1,
@@ -30,21 +34,6 @@ struct task get_last(void){
     return ret;
 }
 
-void schedule(void){
-    struct task task = get_last();
-    if(!task.pure){
-        acquire(&tasks_lock);   
-            if(tasks_buffer_count >= 0){
-                    for(;tasks_buffer_count >= 0; --tasks_buffer_count){
-                    tasks[++tasks_count] = task_buffer[tasks_buffer_count]; 
-                }
-            }
-        release(&tasks_lock);   
-        return;
-    }
-    switch_to(&task); 
-}
-
 void switch_to(struct task * new_task){ 
     struct cpu * my_cpu = (struct cpu *)r_sscratch();
     struct task old_task = my_cpu->current_task;
@@ -59,30 +48,73 @@ void switch_to(struct task * new_task){
 
 }
 
-struct task user_task_create(uint8_t (*main)(void)){
+void schedule(void){
+    struct task task = get_last();
+    if(!task.pure){
+        acquire(&tasks_lock);   
+            if(tasks_buffer_count >= 0){
+                    for(;tasks_buffer_count >= 0; --tasks_buffer_count){
+                    tasks[++tasks_count] = task_buffer[tasks_buffer_count]; 
+                }
+            }
+        release(&tasks_lock); 
+        return;
+    }
+    switch_to(&task); 
+}
+
+
+
+
+
+
+struct task task_create(uint64_t start_addr, uint64_t pgtbl, uint64_t stack, uint64_t sstatus){
     struct task task = {0};
+    struct trapframe tf = {0};
 
-    pagetable_t upgtbl = (pagetable_t) allocpage();
-    memset((void *) upgtbl, 0, 0x1000);
-    task.pgtbl = (uint64_t) upgtbl;
+    tf.sepc = start_addr;
+    tf.sstatus = sstatus;
+    tf.sp = (uint64_t)(((char *)stack) + sizeof(struct trapframe));
+    *((struct trapframe *) stack) = tf;
 
-    uint64_t trapframe = allocpage();
-    memset((void *) trapframe, 0, 0x1000);
-    task.trapframe = (struct trapframe *) trapframe;
+    task.satp = (8ull << 60) | (pgtbl >> 12);
+    task.stack = stack;
+    task.pure = 1;
 
-    uint64_t ustack = allocpage();
-    memset((void *) ustack, 0, 0x1000);
-    task.trapframe->sp = ustack;
+    return task;
+}
 
-    // task.trapframe->kpgtbl = 
+struct task user_task_create(uint8_t (*main)(void)){
+    int8_t map_res; 
 
-    // 1) set kpgtbl and kernel vec
-    // 2) подумать о том как хранить адреса таблицы страниц. Сдвинутые, не сдвинутые, и тд. 
+    uint64_t pgtbl = allocpage();
+    uint64_t stack = allocpage();
+    uint64_t sstatus = r_sstatus();
+    sstatus &= ~(1 << 8);// set spp = 0
+    sstatus |= (1 << 5);
+
+    memset((void *) pgtbl, 0, 0x1000);
+    memset((void *) stack, 0, 0x1000);
+
+    
+    if((&_trampoline_end - &_trampoline_start) > 0x1000){
+        printf("PANIC! user_task_create => trampoline is more than one page \r\n");
+        while(1);
+    }
 
 
-    // for(char * pointer = &_kernel_start; pointer < &_kernel_end; pointer += 0x1000){
-    //     int8_t res = mapva((uint64_t) pointer, (uint64_t) pointer, pgtbl, PTE_XWRDA, true);
-    //     if(res < 0) return -1;
-    // }
+    map_res = mapva((uint64_t) USTACK, stack, (pagetable_t) pgtbl, PTE_XWRDA | PTE_U, true);    
+    map_res = mapva((uint64_t) 0x0, (uint64_t) main, (pagetable_t)  pgtbl, PTE_XWRDA | PTE_U, true);    
+    map_res = mapva(TRAMPOLINE, (uint64_t) &_trampoline_start, (pagetable_t) pgtbl, PTE_XWRDA | PTE_U, true);
 
+    return task_create(0x0, pgtbl, USTACK, sstatus);
+}
+
+uint8_t fork(uint8_t (*main)(void)){
+    struct task task = user_task_create(main);
+    acquire(&tasks_lock);
+        uint8_t task_id = ++tasks_buffer_count;
+        task_buffer[task_id] = task;
+    release(&tasks_lock);
+    return task_id;
 }

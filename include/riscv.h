@@ -21,7 +21,7 @@
 */////////////////////////////////////
 
 //previous interrupt enable
-#define MPIE (1 << 7)
+#define MPIE (0 << 7)
 // interrupt enable
 // set 0 when intrr happens
 #define MIE (0 << 3)
@@ -55,7 +55,7 @@
 #define TSR (0 << 22)
 
 #define SPIE (1 << 5)
-#define SIE  (1 << 1)
+#define SIE  (0 << 1)
 
 #define INIT_MSTATUS_VAL (MPIE | MPP | MIE | MXR | MPRV | SUM | TVM | TW | TSR | SPIE | SIE)
 
