@@ -1,6 +1,7 @@
+#include "memlayout.h"
+
 .section .trampoline
 .globl kernelvec
-.align 4
 kernelvec: # traframe 
     addi sp, sp, -256
     sd ra, 0(sp)
@@ -41,25 +42,25 @@ kernelvec: # traframe
     csrr t0, sstatus
     sd t0, 256(sp)
 
-    # context saved
-    # change to kernel pgtbl
     csrr t0, satp 
     mv   t1, sp 
+
+    # context saved
+    # change to kernel pgtbl
     csrr t2, sscratch
+    csrw satp, t2 
+    sfence.vma x0, x0 
 
-    addi t3, t2, 32
-    csrw satp, t3 
-    sfence.vma x0, x0
-
-    #change to kernel stack 
-    addi t3, t3, 8
-    mv sp, t3   
+    li t2, MYCPU 
+    ld sp, 48(t2)
 
     #save uset stack and pagetable
-    sd t1, 0(t2)
-    sd t0, 8(t2)
+    sd t0, 0(t2)
+    sd t1, 8(t2)
+    
+    ld t0, 56(t2)
+    jalr ra, t0, 0
 
-    call kerneltrap    #trap.c
 .globl kernelvecret
 kernelvecret: # traframe нам надо взять наш стэк с начала и нашу таблицу страниц 
     csrr t0, sscratch

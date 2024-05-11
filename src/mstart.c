@@ -13,12 +13,15 @@ __attribute__ ((aligned (16))) char stack0[0x1000 * NCPU];
 // a scratch area per CPU for machine-mode timer interrupts.
 uint64_t timer_scratch[NCPU][5];
 
-struct cpu cpus[NCPU] = {0};
+
+__attribute__ ((aligned (0x1000))) struct cpu cpus[NCPU] = {0};
 
 
 // assembly code in kernelvec.S for machine-mode timer interrupt.
 extern void timervec(void);
 
+//trap.c
+extern void kerneltrap(void);
 
 
 uint8_t ustart(void){
@@ -32,10 +35,9 @@ uint8_t ustart(void){
 
 
 void kstart(void){
-    uint64_t sval = *((uint64_t *)0x0000000080020000);
-    uint64_t sval2 = *((uint64_t *)0x0000000080006000);
-    uint64_t sval3 = *((uint64_t *) kernelvec);
-    printf("Value at address 0x80000000 %x %x %x", sval, sval2, kernelvec);
+    ((void (*) (void)) TRAMPOLINE)();
+
+    // printf("Value at address 0x80000000 %x %x %x", sval, sval2, kernelvec);
 
     fork(ustart);
     intr_on();
@@ -73,7 +75,7 @@ void supervisor_init(void){
 
 
     w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE); // ok
-    w_sscratch((uint64_t)&cpus[mhartid]);//ok
+
 
     uint64_t default_sstatus = r_sstatus() | (1 << 8) | (1 << 5) | (1 << 1);
     w_sstatus(default_sstatus); // maybe ok
@@ -81,21 +83,24 @@ void supervisor_init(void){
     uint64_t pgtbl = kpgtbl_init(); 
     uint64_t ksatp = KSTVEC_MODE | KSTVEC_ASID | (pgtbl >> 12);
 
+    w_sscratch(ksatp); //ok
     w_satp(ksatp); //ok 
+    asm volatile("sfence.vma x0, x0");
 
     //supervisor
-    // w_stvec(TRAMPOLINE); // ok
-    w_stvec(0x80006000); // ok
+    w_stvec(TRAMPOLINE); // ok
+    // w_stvec(0x80006000); // ok
 
     struct task dirt_task = {0};
     cpus[mhartid].ksatp = ksatp;
     cpus[mhartid].current_task = dirt_task;
     cpus[mhartid].kstack = (uint64_t) &stack0[(mhartid + 1) << 12];
+    cpus[mhartid].traphandler = &kerneltrap;
 
     if(mhartid == 0){
         ppgtbl((pagetable_t) pgtbl);
     }
-    asm volatile("sfence.vma x0, x0");
+
 }
 
 void mstart(uint8_t mhartid){

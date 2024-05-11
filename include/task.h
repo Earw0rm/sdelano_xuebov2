@@ -57,8 +57,9 @@ struct task{
 
 struct cpu{
     struct task current_task; 
-    uint64_t ksatp;  // 32 (cpu)
-    uint64_t kstack; // 40
+    uint64_t ksatp;  // 40 (cpu)
+    uint64_t kstack; // 48
+    uint64_t traphandler; // 56
 };
 
 

@@ -5,10 +5,12 @@
 #include "utils.h"
 #include "printf.h"
 #include "param.h"
-
+#include "task.h"
 
 __attribute__ ((aligned (0x1000))) char kpgtbl[0x1000 * NCPU] = {0};
 
+//mstart.c
+extern struct cpu cpus[NCPU];
 
 pte_t * walk(uint64_t va, pagetable_t pgtbl, bool alloc){
 
@@ -59,6 +61,7 @@ uint64_t kpgtbl_init(void){
     }
 
     map_res = mapva(TRAMPOLINE, (uint64_t) kernelvec, pgtbl, PTE_XWRDA, true);
+    map_res = mapva(MYCPU, (uint64_t) &cpus[id], pgtbl, PTE_XWRDA, true);
 
     return (uint64_t) pgtbl;
 }

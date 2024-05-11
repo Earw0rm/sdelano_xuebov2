@@ -1,7 +1,7 @@
 BUILD_DIR = ./build
 SOURCE_DIR = ./src
 CPREFIX ?=riscv64-unknown-elf-
-COPS =-fno-pie -no-pie -Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -g -mcmodel=medany -mno-relax
+COPS = -Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -g -mcmodel=medany -mno-relax
 
 
 
@@ -33,13 +33,13 @@ clean:
 
 qemu_dump:
 	qemu-system-riscv64 -s -S -machine virt -cpu rv64 \
-	 -smp 4 -m 128M -nographic \
+	 -smp 4 -m 128M -nographic --trace a.out\
 	 -serial mon:stdio -bios none -machine dumpdtb=$(BUILD_DIR)/qemu-virt.dtb 
 	dtc -I dtb -O dts -o $(BUILD_DIR)/qemu-virt.dts $(BUILD_DIR)/qemu-virt.dtb
 
 qemu: clean all
 	/home/foer/Documents/qemu-9.0.0/build/qemu-system-riscv64 -s -S -machine virt -cpu rv64 \
-	 -smp 4 -m 128M -nographic \
+	 -smp 4 -m 128M -nographic  \
 	 -serial mon:stdio -bios none -kernel $(BUILD_DIR)/kernel.elf 
 
 debug: kernel.elf

@@ -29,9 +29,12 @@
 #define CLINT_MTIMECMP(hartid) (CLINT + 0x4000 + 8*(hartid))
 #define CLINT_MTIME (CLINT + 0xBFF8) 
 
+
+#define MYCPU       0x180000000
 #define PHYMEMSTART 0x80000000
 #define PHYMEMEND   0x87ffffff
 
+#ifndef __ASSEMBLER__
 extern char _kernel_start;
 extern char _kernel_end;
 
@@ -41,11 +44,16 @@ extern char _text_end;
 
 
 extern char kernelvec[];
+#endif 
+
+
 
 #define UMEMSTART  0x0
 #define UMEMEND    0x10000000
 
-#define TRAMPOLINE 0x80020000ull
+
+
+#define TRAMPOLINE 0x280000000ull
 #define USTACK     0x10001000
 
 
