@@ -55,20 +55,20 @@ kernelvec: # traframe
     ld sp, 48(t2)
 
     #save uset stack and pagetable
-    sd t0, 0(t2)
-    sd t1, 8(t2)
+    sd t1, 0(t2)
+    sd t0, 8(t2)
     
     ld t0, 56(t2)
     jalr ra, t0, 0
 
 .globl kernelvecret
 kernelvecret: # traframe нам надо взять наш стэк с начала и нашу таблицу страниц 
-    csrr t0, sscratch
-    mv sp, t0 
+    
+    li t0, MYCPU 
+    ld sp, 0(t0)
+    ld t1, 8(t0)
 
-    addi t0, t0, 8
-    csrw satp, t0
-
+    csrw satp, t1 
     sfence.vma x0, x0 
 
     ld ra, 0(sp)
@@ -110,5 +110,5 @@ kernelvecret: # traframe нам надо взять наш стэк с нача�
 
     ld t0, 32(sp)
 
-    addi sp, sp, 272
+    addi sp, sp, 256
     sret    

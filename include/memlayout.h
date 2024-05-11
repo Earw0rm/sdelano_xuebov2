@@ -33,6 +33,8 @@
 #define MYCPU       0x180000000
 #define PHYMEMSTART 0x80000000
 #define PHYMEMEND   0x87ffffff
+#define UART        0x10000000
+
 
 #ifndef __ASSEMBLER__
 extern char _kernel_start;

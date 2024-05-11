@@ -62,6 +62,8 @@ uint64_t kpgtbl_init(void){
 
     map_res = mapva(TRAMPOLINE, (uint64_t) kernelvec, pgtbl, PTE_XWRDA, true);
     map_res = mapva(MYCPU, (uint64_t) &cpus[id], pgtbl, PTE_XWRDA, true);
+    map_res = mapva(UART, UART, pgtbl, PTE_XWRDA, true);
+
 
     return (uint64_t) pgtbl;
 }

@@ -73,6 +73,8 @@ w_mstatus(uint64_t x)
   asm volatile("csrw mstatus, %0" : : "r" (x));
 }
 
+#define SPP_MASK (1 << 8)
+
 
 static inline uint64_t
 r_sstatus(void)
@@ -300,6 +302,25 @@ r_scause(void)
 {
   uint64_t x;
   asm volatile("csrr %0, scause" : "=r" (x) );
+  return x;
+}
+
+
+#define SATP_PPN_MASK ((1ull << 44) - 1)
+
+static inline uint64_t
+r_satp(void)
+{
+  uint64_t x;
+  asm volatile("csrr %0, satp" : "=r" (x) );
+  return x;
+}
+
+static inline uint64_t
+r_stval(void)
+{
+  uint64_t x;
+  asm volatile("csrr %0, stval" : "=r" (x) );
   return x;
 }
 

@@ -10,6 +10,10 @@
 // entry.S needs one stack per CPU.
 __attribute__ ((aligned (16))) char stack0[0x1000 * NCPU];
 
+// entry.S needs one stack per CPU.
+__attribute__ ((aligned (16))) char handler_stack[0x1000 * NCPU];
+
+
 // a scratch area per CPU for machine-mode timer interrupts.
 uint64_t timer_scratch[NCPU][5];
 
@@ -29,16 +33,8 @@ uint8_t ustart(void){
     return 0;
 }
 
-
-
-
-
-
 void kstart(void){
-    ((void (*) (void)) TRAMPOLINE)();
-
-    // printf("Value at address 0x80000000 %x %x %x", sval, sval2, kernelvec);
-
+    // ((void (*) (void))TRAMPOLINE)();
     fork(ustart);
     intr_on();
 }
@@ -94,8 +90,8 @@ void supervisor_init(void){
     struct task dirt_task = {0};
     cpus[mhartid].ksatp = ksatp;
     cpus[mhartid].current_task = dirt_task;
-    cpus[mhartid].kstack = (uint64_t) &stack0[(mhartid + 1) << 12];
-    cpus[mhartid].traphandler = &kerneltrap;
+    cpus[mhartid].kstack = (uint64_t) &handler_stack[(mhartid + 1) << 12];
+    cpus[mhartid].traphandler = (uint64_t) &kerneltrap;
 
     if(mhartid == 0){
         ppgtbl((pagetable_t) pgtbl);

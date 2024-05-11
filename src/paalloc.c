@@ -37,6 +37,7 @@ uint64_t allocpage(void){
 
         freemem = page->next;
     release(&freememlock);
+    
     return (uint64_t) page;
 }
 
