@@ -4,5 +4,5 @@
 
 
 uint8_t fork(uint8_t (*main)(void));
-
+void schedule(void);
 #endif 

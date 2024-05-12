@@ -35,7 +35,7 @@ struct task get_last(void){
 }
 
 void switch_to(struct task * new_task){ 
-    struct cpu * my_cpu = (struct cpu *)r_sscratch();
+    struct cpu * my_cpu = (struct cpu *)MYCPU;
     struct task old_task = my_cpu->current_task;
     my_cpu->current_task = *new_task;
 
@@ -45,7 +45,8 @@ void switch_to(struct task * new_task){
             task_buffer[++tasks_buffer_count] = old_task;
         release(&tasks_lock);        
     }
-
+    printf("################################################ \r\n");
+    ppgtbl(SATP2PPN(new_task->satp));
 }
 
 void schedule(void){
@@ -74,11 +75,13 @@ struct task task_create(uint64_t start_addr, uint64_t pgtbl, uint64_t stack, uin
 
     tf.sepc = start_addr;
     tf.sstatus = sstatus;
-    tf.sp = (uint64_t)(((char *)stack) + sizeof(struct trapframe));
+    tf.sp = (uint64_t)(((char *)USTACK) + sizeof(struct trapframe));
+
+
     *((struct trapframe *) stack) = tf;
 
     task.satp = (8ull << 60) | (pgtbl >> 12);
-    task.stack = stack;
+    task.stack = tf.sp;
     task.pure = 1;
 
     return task;
@@ -103,15 +106,22 @@ struct task user_task_create(uint8_t (*main)(void)){
     }
 
 
-    map_res = mapva((uint64_t) USTACK, stack, (pagetable_t) pgtbl, PTE_XWRDA | PTE_U, true);    
+    map_res = mapva((uint64_t) USTACK, stack, (pagetable_t) pgtbl,  PTE_W | PTE_R | PTE_U, true);    
     map_res = mapva((uint64_t) 0x0, (uint64_t) main, (pagetable_t)  pgtbl, PTE_XWRDA | PTE_U, true);    
-    map_res = mapva(TRAMPOLINE, (uint64_t) &_trampoline_start, (pagetable_t) pgtbl, PTE_XWRDA | PTE_U, true);
+    map_res = mapva(TRAMPOLINE, (uint64_t) kernelvec, (pagetable_t) pgtbl, PTE_XWRDA, true);
 
-    return task_create(0x0, pgtbl, USTACK, sstatus);
+
+
+    struct task task = task_create(0x0, pgtbl, stack, sstatus);
+
+    return task;
 }
 
 uint8_t fork(uint8_t (*main)(void)){
     struct task task = user_task_create(main);
+
+
+
     acquire(&tasks_lock);
         uint8_t task_id = ++tasks_buffer_count;
         task_buffer[task_id] = task;

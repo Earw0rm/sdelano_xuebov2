@@ -5,6 +5,7 @@
 #include "memlayout.h"
 #include "vm.h"
 #include "task.h"
+#include "sched.h"
 
 #define SUPERVISOR_SOFTWARE_INTERRUPT (0x8000000000000000L | 1)
 #define SUPERVISOR_EXTERNAL_INTERRUPT (0x8000000000000000L | 9)
@@ -17,8 +18,6 @@ uint8_t askintr(void){
     uint64_t scause = r_scause();
     switch (scause){
         case SUPERVISOR_SOFTWARE_INTERRUPT:
-            /* code */
-
             w_sip(r_sip() & ~2); // asc
             return 1;
             break;
@@ -33,18 +32,19 @@ uint8_t askintr(void){
 void kerneltrap(void){
 
     uint64_t sstatus = r_sstatus(); 
+    uint64_t scause = r_scause();
+    uint64_t stval  = r_stval();
+
     if((sstatus & SPP_MASK) != 0){ // mean that pp is supervisor
 
         
-        uint64_t scause = r_scause();
-        uint64_t stval  = r_stval();
+
 
         if((scause & CAUSE_INTR_MASK) == 0){ //this is exception
 
             if(((scause & 0xff) == 0xd) && (stval < PHYMEMEND ) && (stval > PHYMEMSTART)){
-                printf("Exception \r\n");
-
-
+ 
+               printf("Exception \r\n");
                 uint64_t satp = r_satp();
                 w_satp(0x0);
                 asm volatile("sfence.vma x0, x0");
@@ -58,14 +58,14 @@ void kerneltrap(void){
 
 
 
-        }else{ //this is interrupt
-            printf("Interrupt \r\n");
+        }else if((scause & 1 ) != 0){ //this is software interrupt
+            printf("Software interrupt. \r\n");
+            schedule();
+            w_sip(r_sip() & ~2); // asc
         }
+
     }else{ // user mode 
         printf("Kernel trap, previous mode is usermode. \r\n");
     }
 }
 
-void usertrap(void){
-    printf("Hello usertrap \r\n");
-}

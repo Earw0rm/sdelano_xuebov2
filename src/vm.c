@@ -12,7 +12,8 @@ __attribute__ ((aligned (0x1000))) char kpgtbl[0x1000 * NCPU] = {0};
 //mstart.c
 extern struct cpu cpus[NCPU];
 
-pte_t * walk(uint64_t va, pagetable_t pgtbl, bool alloc){
+pte_t * walk(uint64_t va, pagetable_t pgtbl,  uint16_t flags, bool alloc){
+    flags = flags & (0xf0); 
 
     for(uint8_t level = 2; level != 0; --level){
         pte_t * pte = &pgtbl[VAPDIND(va, level)];
@@ -22,7 +23,7 @@ pte_t * walk(uint64_t va, pagetable_t pgtbl, bool alloc){
         }else if(alloc == true){
             uint64_t page = allocpage();
             memset((void *) page, 0, 0x1000);
-            *pte = (PA2PTE(page) | PTE_V);
+            *pte = (PA2PTE(page) | PTE_V | flags);
         }else{
             //panic
             return (pte_t *) 0x0;
@@ -39,7 +40,7 @@ int8_t mapva(uint64_t va, uint64_t pa, pagetable_t pgtbl,  uint16_t flags, bool 
         va = ADDRROUNDDOWN(va);
         pa = ADDRROUNDDOWN(pa);
 
-        pte_t * pte = walk(va, pgtbl, alloc);
+        pte_t * pte = walk(va, pgtbl, flags, alloc);
         if(pte == (pte_t*)0x0){
             //panic
             return -1;
@@ -77,7 +78,7 @@ void pagetable_debug(pagetable_t pgtbl, uint64_t level){
                 printf("\t");
             }
 
-            printf("ind:%x, val:%x, pte2pa:%x \r\n", i, val, PTE2PA(val));
+            printf("ind:%x, val:%x, pte2pa:%X \r\n", i, val, PTE2PA(val));
 
 
             if(level != 0) {
@@ -87,5 +88,6 @@ void pagetable_debug(pagetable_t pgtbl, uint64_t level){
     }
 }
 void ppgtbl(pagetable_t pgtbl){
+    printf("###################pagetable:%x###################\r\n", (uint64_t)pgtbl);
     pagetable_debug(pgtbl, 2);
 }

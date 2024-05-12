@@ -31,11 +31,15 @@
 #define PTE_FLAG_MASK ((1 << 8) - 1)
 
 #define ADDRROUNDDOWN(addr) ((addr) & ~(4096 - 1))
+#define SATP2PPN(addr) ((((1 << 22) - 1) & addr) << 12)
 
 
 
-pte_t * walk(uint64_t va, pagetable_t pgtbl, bool alloc);
+pte_t * walk(uint64_t va, pagetable_t pgtbl, uint16_t flags, bool alloc);
 int8_t mapva(uint64_t va, uint64_t pa, pagetable_t pgtbl, uint16_t flags, bool alloc);
+
+
+//(lv2ind << 30 | lv1ind << 21 | lv0ind << 12) + offset
 void ppgtbl(pagetable_t pgtbl);
 
 uint64_t kpgtbl_init(void);

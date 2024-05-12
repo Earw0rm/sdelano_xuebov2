@@ -36,11 +36,14 @@ uint8_t ustart(void){
 void kstart(void){
     // ((void (*) (void))TRAMPOLINE)();
     fork(ustart);
-    intr_on();
+
 }
 
 void _kstart(void){
     kstart();
+
+    w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE); // ok
+    intr_on();
     while(1);
 }
 
@@ -58,22 +61,18 @@ void timer_init(void){
 
     uint64_t *scratch = &timer_scratch[id][0];    
     scratch[3] = CLINT_MTIMECMP(id);
-    scratch[4] =  TIMERINTERVAL;
+    scratch[4] = TIMERINTERVAL;
     w_mscratch((uint64_t) scratch);
 
     w_mtvec((uint64_t) timervec);
     // enable global intr
-    // w_mstatus(r_mstatus() | (1 << 3));
+    w_mstatus(r_mstatus() | (1 << 3));
 }
 
 void supervisor_init(void){
     uint64_t mhartid = r_mhartid();
 
-
-    w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE); // ok
-
-
-    uint64_t default_sstatus = r_sstatus() | (1 << 8) | (1 << 5) | (1 << 1);
+    uint64_t default_sstatus = r_sstatus() | (1 << 18 )| (1 << 8) | (1 << 5) | (1 << 1);
     w_sstatus(default_sstatus); // maybe ok
 
     uint64_t pgtbl = kpgtbl_init(); 
@@ -85,7 +84,6 @@ void supervisor_init(void){
 
     //supervisor
     w_stvec(TRAMPOLINE); // ok
-    // w_stvec(0x80006000); // ok
 
     struct task dirt_task = {0};
     cpus[mhartid].ksatp = ksatp;

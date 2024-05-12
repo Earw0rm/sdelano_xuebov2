@@ -21,7 +21,7 @@
 */////////////////////////////////////
 
 //previous interrupt enable
-#define MPIE (0 << 7)
+#define MPIE (1 << 7)
 // interrupt enable
 // set 0 when intrr happens
 #define MIE (0 << 3)
