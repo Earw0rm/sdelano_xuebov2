@@ -34,7 +34,9 @@ uint8_t ustart(void){
 }
 
 void kstart(void){
-    // ((void (*) (void))TRAMPOLINE)();
+    uint64_t *p = (uint64_t*)0x87000000;
+    *p = 10;
+    uint64_t k = *p;
     fork(ustart);
 
 }
