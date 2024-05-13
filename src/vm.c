@@ -12,8 +12,8 @@ __attribute__ ((aligned (0x1000))) char kpgtbl[0x1000 * NCPU] = {0};
 //mstart.c
 extern struct cpu cpus[NCPU];
 
-pte_t * walk(uint64_t va, pagetable_t pgtbl,  uint16_t flags, bool alloc){
-    flags = flags & (0xf0); 
+pte_t * walk(uint64_t va, pagetable_t pgtbl, bool alloc){
+
 
     for(uint8_t level = 2; level != 0; --level){
         pte_t * pte = &pgtbl[VAPDIND(va, level)];
@@ -40,7 +40,7 @@ int8_t mapva(uint64_t va, uint64_t pa, pagetable_t pgtbl,  uint16_t flags, bool 
         va = ADDRROUNDDOWN(va);
         pa = ADDRROUNDDOWN(pa);
 
-        pte_t * pte = walk(va, pgtbl, flags, alloc);
+        pte_t * pte = walk(va, pgtbl,  alloc);
         if(pte == (pte_t*)0x0){
             //panic
             return -1;
@@ -57,14 +57,13 @@ uint64_t kpgtbl_init(void){
     int8_t map_res;
 
     for(char * pointer = &_kernel_start; pointer < &_kernel_end; pointer += 0x1000){
-        map_res = mapva((uint64_t) pointer, (uint64_t) pointer, pgtbl, PTE_XWRDA, true);
+        map_res = mapva((uint64_t) pointer, (uint64_t) pointer, pgtbl, PTE_XWR, true);
         if(map_res < 0) return -1;
     }
 
-    map_res = mapva(TRAMPOLINE, (uint64_t) kernelvec, pgtbl, PTE_XWRDA, true);
-    map_res = mapva(MYCPU, (uint64_t) &cpus[id], pgtbl, PTE_XWRDA, true);
-    map_res = mapva(UART, UART, pgtbl, PTE_XWRDA, true);
-    map_res = mapva( 0x87000000, 0x87000000, pgtbl, PTE_R|PTE_W|PTE_X|PTE_U, true);
+    map_res = mapva(TRAMPOLINE, (uint64_t) kernelvec, pgtbl, PTE_XWR, true);
+    map_res = mapva(MYCPU, (uint64_t) &cpus[id], pgtbl, PTE_XWR, true);
+    map_res = mapva(UART, UART, pgtbl, PTE_XWR, true);
 
     return (uint64_t) pgtbl;
 }

@@ -75,10 +75,10 @@ struct task task_create(uint64_t start_addr, uint64_t pgtbl, uint64_t stack, uin
 
     tf.sepc = start_addr;
     tf.sstatus = sstatus;
-    tf.sp = (uint64_t)(((char *)USTACK) + sizeof(struct trapframe));
+    tf.sp = (uint64_t)(((char *)USTACK) - sizeof(struct trapframe));
 
 
-    *((struct trapframe *) stack) = tf;
+    *((struct trapframe *) (stack + 0xff0 - sizeof(struct trapframe))) = tf;
 
     task.satp = (8ull << 60) | (pgtbl >> 12);
     task.stack = tf.sp;
@@ -106,9 +106,9 @@ struct task user_task_create(uint8_t (*main)(void)){
     }
 
 
-    map_res = mapva((uint64_t) USTACK, stack, (pagetable_t) pgtbl,  PTE_W | PTE_R | PTE_U, true);    
-    map_res = mapva((uint64_t) 0x0, (uint64_t) main, (pagetable_t)  pgtbl, PTE_XWRDA | PTE_U, true);    
-    map_res = mapva(TRAMPOLINE, (uint64_t) kernelvec, (pagetable_t) pgtbl, PTE_XWRDA, true);
+    map_res = mapva((uint64_t) USTACKTOP, stack, (pagetable_t) pgtbl,  PTE_W | PTE_R | PTE_U, true);    
+    map_res = mapva((uint64_t) 0x0, (uint64_t) main, (pagetable_t)  pgtbl, PTE_XWR | PTE_U, true);    
+    map_res = mapva(TRAMPOLINE, (uint64_t) kernelvec, (pagetable_t) pgtbl, PTE_XWR, true);
 
 
 

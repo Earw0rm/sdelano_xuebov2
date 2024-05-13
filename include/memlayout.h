@@ -56,7 +56,7 @@ extern char kernelvec[];
 
 
 #define TRAMPOLINE 0x280000000ull
-#define USTACK     0x10001000
-
+#define USTACK     0x10001ff0
+#define USTACKTOP  0x10001000
 
 #endif 

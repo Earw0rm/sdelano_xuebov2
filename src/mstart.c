@@ -27,16 +27,13 @@ extern void timervec(void);
 //trap.c
 extern void kerneltrap(void);
 
-
+__attribute__ ((aligned (0x1000)))
 uint8_t ustart(void){
     while(1);
     return 0;
 }
 
 void kstart(void){
-    uint64_t *p = (uint64_t*)0x87000000;
-    *p = 10;
-    uint64_t k = *p;
     fork(ustart);
 
 }

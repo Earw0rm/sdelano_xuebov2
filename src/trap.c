@@ -50,7 +50,7 @@ void kerneltrap(void){
                 asm volatile("sfence.vma x0, x0");
                 
                 uint64_t pgtbl = (satp & SATP_PPN_MASK) << 12;
-                int8_t map_res = mapva(stval, stval, (pagetable_t) pgtbl, PTE_XWRDA, true);
+                int8_t map_res = mapva(stval, stval, (pagetable_t) pgtbl, PTE_XWR, true);
                 
                 w_satp(satp);
                 asm volatile("sfence.vma x0, x0");
@@ -65,7 +65,10 @@ void kerneltrap(void){
         }
 
     }else{ // user mode 
+
         printf("Kernel trap, previous mode is usermode. \r\n");
+
+        
     }
 }
 

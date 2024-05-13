@@ -26,7 +26,7 @@
 #define PTE_A (1 << 6)
 #define PTE_U (1 << 4)
 
-#define PTE_XWRDA (PTE_X | PTE_W | PTE_R )
+#define PTE_XWR (PTE_X | PTE_W | PTE_R )
 
 #define PTE_FLAG_MASK ((1 << 8) - 1)
 
@@ -35,7 +35,7 @@
 
 
 
-pte_t * walk(uint64_t va, pagetable_t pgtbl, uint16_t flags, bool alloc);
+pte_t * walk(uint64_t va, pagetable_t pgtbl, bool alloc);
 int8_t mapva(uint64_t va, uint64_t pa, pagetable_t pgtbl, uint16_t flags, bool alloc);
 
 
