@@ -35,9 +35,9 @@ struct task get_last(void){
 }
 
 void switch_to(struct task * new_task){ 
-    struct cpu * my_cpu = (struct cpu *)MYCPU;
-    struct task old_task = my_cpu->current_task;
-    my_cpu->current_task = *new_task;
+
+    struct task old_task = mycpu->current_task;
+    mycpu->current_task = *new_task;
 
 
     if(old_task.pure){//sinse first task is not pure...

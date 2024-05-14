@@ -61,6 +61,8 @@ SECTIONS
         PROVIDE(_bss_end = .);
     } >ram AT>ram :bss
 
+    . += 0x1000;
     . = ALIGN(0x1000);
     PROVIDE(_kernel_end = .);
+
 }

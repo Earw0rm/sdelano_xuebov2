@@ -28,7 +28,7 @@ uint64_t allocpage(void){
         struct run * page = freemem;
 
         
-        if(page == (struct run *)0x0){
+        if(page == (struct run *)0x0){            
             add_pages();
             page = freemem;
         }

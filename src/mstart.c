@@ -19,7 +19,7 @@ uint64_t timer_scratch[NCPU][5];
 
 
 __attribute__ ((aligned (0x1000))) struct cpu cpus[NCPU] = {0};
-
+struct cpu * mycpu = 0;
 
 // assembly code in kernelvec.S for machine-mode timer interrupt.
 extern void timervec(void);
@@ -76,6 +76,8 @@ void supervisor_init(void){
     cpus[mhartid].kstack = (uint64_t) &handler_stack[(mhartid + 1) << 12];
     cpus[mhartid].traphandler = (uint64_t) &kerneltrap;
     cpus[mhartid].id = mhartid;
+    mycpu = &cpus[mhartid]; // in task.c header
+
 
     uint64_t default_sstatus = r_sstatus() | (1 << 18 )| (1 << 8) | (1 << 5) | (1 << 1);
     w_sstatus(default_sstatus); // maybe ok
@@ -124,8 +126,6 @@ void mstart(uint8_t mhartid){
 
     supervisor_init();
     timer_init();
-
-    if(mhartid != 0) while(1);
 
     asm volatile("mret");
 }

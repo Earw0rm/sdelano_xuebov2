@@ -66,7 +66,7 @@ struct cpu{
     uint8_t intena; // previous interrupt enable masks
 };
 
-
+extern struct cpu * mycpu;
 
 
 #endif 

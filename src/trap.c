@@ -42,7 +42,7 @@ void kerneltrap(void){
 
         if((scause & CAUSE_INTR_MASK) == 0){ //this is exception
 
-            if(((scause & 0xff) == 0xd) && (stval < PHYMEMEND ) && (stval > PHYMEMSTART)){
+            if((((scause & 0xff) == 0xd) | ((scause & 0xff) == 0xf))  && (stval < PHYMEMEND ) && (stval > PHYMEMSTART)){
  
                printf("Exception \r\n");
                 uint64_t satp = r_satp();

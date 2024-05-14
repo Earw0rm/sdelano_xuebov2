@@ -31,7 +31,7 @@ void acquire(struct speenlock * lock){
         asm volatile("nop");
     }
 
-    lock->cpu = mycpu();
+    lock->cpu = mycpu;
 }
 
 
@@ -55,19 +55,19 @@ void release(struct speenlock *lock){
 
 void push_off(){
 
-    if(mycpu()->noff == 0){
+    if(mycpu->noff == 0){
         bool is_enabled =  is_intr_enabled();
-        mycpu()->intena = is_enabled;
+        mycpu->intena = is_enabled;
         if(is_enabled == true) intr_off();
     }
-    ++(mycpu()->noff);
+    ++(mycpu->noff);
 }
 
 void push_on(){
-    if((--(mycpu()->noff)) == 0 && mycpu()->intena == true) intr_on();
+    if((--(mycpu->noff)) == 0 && mycpu->intena == true) intr_on();
 }
 
 
 bool holding(struct speenlock *lock){
-    return (lock->locked && lock->cpu == mycpu());
+    return (lock->locked && lock->cpu == mycpu);
 }
