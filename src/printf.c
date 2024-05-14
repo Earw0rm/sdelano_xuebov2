@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 __attribute__((section(".thread_shared")))
 static struct speenlock printflock = {
-    .cpu_num = -1,
+    .cpu = 0,
     .locked = 0,
     .name = "clear"
 };

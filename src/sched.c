@@ -9,7 +9,7 @@
 #include "riscv.h"
 
 struct speenlock tasks_lock = {
-    .cpu_num = -1,
+    .cpu = 0,
     .locked = 0,
     .name = "clear"
 };

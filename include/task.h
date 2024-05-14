@@ -60,6 +60,10 @@ struct cpu{
     uint64_t ksatp;  // 40 (cpu)
     uint64_t kstack; // 48
     uint64_t traphandler; // 56
+    uint8_t id;
+
+    uint8_t noff; // hom much time we off interrupt
+    uint8_t intena; // previous interrupt enable masks
 };
 
 

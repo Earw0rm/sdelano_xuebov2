@@ -10,7 +10,7 @@
 // entry.S needs one stack per CPU.
 __attribute__ ((aligned (16))) char stack0[0x1000 * NCPU];
 
-// entry.S needs one stack per CPU.
+
 __attribute__ ((aligned (16))) char handler_stack[0x1000 * NCPU];
 
 
@@ -71,11 +71,20 @@ void timer_init(void){
 void supervisor_init(void){
     uint64_t mhartid = r_mhartid();
 
+    struct task dirt_task = {0};
+    cpus[mhartid].current_task = dirt_task;
+    cpus[mhartid].kstack = (uint64_t) &handler_stack[(mhartid + 1) << 12];
+    cpus[mhartid].traphandler = (uint64_t) &kerneltrap;
+    cpus[mhartid].id = mhartid;
+
     uint64_t default_sstatus = r_sstatus() | (1 << 18 )| (1 << 8) | (1 << 5) | (1 << 1);
     w_sstatus(default_sstatus); // maybe ok
+    
+
 
     uint64_t pgtbl = kpgtbl_init(); 
     uint64_t ksatp = KSTVEC_MODE | KSTVEC_ASID | (pgtbl >> 12);
+    cpus[mhartid].ksatp = ksatp;
 
     w_sscratch(ksatp); //ok
     w_satp(ksatp); //ok 
@@ -84,11 +93,8 @@ void supervisor_init(void){
     //supervisor
     w_stvec(TRAMPOLINE); // ok
 
-    struct task dirt_task = {0};
-    cpus[mhartid].ksatp = ksatp;
-    cpus[mhartid].current_task = dirt_task;
-    cpus[mhartid].kstack = (uint64_t) &handler_stack[(mhartid + 1) << 12];
-    cpus[mhartid].traphandler = (uint64_t) &kerneltrap;
+
+
 
     if(mhartid == 0){
         ppgtbl((pagetable_t) pgtbl);

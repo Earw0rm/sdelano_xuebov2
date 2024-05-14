@@ -316,21 +316,23 @@ r_satp(void)
   return x;
 }
 
-static inline uint64_t
-r_stval(void)
+static inline uint64_t r_stval(void)
 {
   uint64_t x;
   asm volatile("csrr %0, stval" : "=r" (x) );
   return x;
 }
 
-static inline void
-intr_off(void){
+//global 
+static inline bool is_intr_enabled(void){
+  return (r_sstatus() & 2) > 0;
+}
+
+static inline void intr_off(void){
   w_sstatus(r_sstatus() & ~2); 
 }
 
-static inline void
-intr_on(void){
+static inline void intr_on(void){
   w_sstatus(r_sstatus() | 2); 
 }
 

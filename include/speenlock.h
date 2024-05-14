@@ -2,12 +2,15 @@
 #define _SPEENLOCK_H
 
 #include "common.h"
+#include "task.h"
 /**
  * https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html
  * 
  * 
  * B2.9.2 Exclusive access instructions and Shareable memory locations
+ *  
  * 
+ * for armv8 only 
  * Because implementations can choose which memory types are treated as Non-cacheable, the only memory types for which it is architecturally guaranteed that a global Exclusives monitor is implemented are:
  * 1) Inner Shareable, Inner Write-Back, Outer Write-Back Normal memory with Read allocation hints and Write allocation hints and not transient. 
  * 2) Outer Shareable, Inner Write-Back, Outer Write-Back Normal memory with Read allocation hints and Write allocation hints and not transient.
@@ -19,8 +22,7 @@
 struct speenlock{    
     char locked;
     char *name;
-    int8_t cpu_num;
-//    struct cpu *cpu; // currenct cpu that holding lock
+    struct cpu* cpu; // currenct cpu that holding lock
 };
 
 
@@ -35,10 +37,15 @@ void acquire(struct speenlock *);
  * __sync_lock_release(&value)
  * turn_on interruptions
 */
+
+
 void release(struct speenlock *);
 
 
+void push_off();
+void push_on();
 
+bool holding(struct speenlock *lock);
 
 
 #endif

@@ -1,4 +1,15 @@
 #include "common.h"
+#include "param.h"
+#include "task.h"
+#include "riscv.h"
+#include "memlayout.h"
+
+
+
+
+struct cpu* mycpu(void){
+    return (struct cpu *)MYCPU;
+}
 
 void * memset(void *str, int c, size_t n){
     void * str_cpy = str;
