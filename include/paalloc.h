@@ -2,6 +2,8 @@
 #define _PAALLOC_H
 #include "common.h"
 
+#define ALLOC_NUM 10
+
 struct run{
     struct run* next;
 };
