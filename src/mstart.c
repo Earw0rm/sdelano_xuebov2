@@ -19,7 +19,6 @@ uint64_t timer_scratch[NCPU][5];
 
 
 __attribute__ ((aligned (0x1000))) struct cpu cpus[NCPU] = {0};
-struct cpu * mycpu = 0;
 
 // assembly code in kernelvec.S for machine-mode timer interrupt.
 extern void timervec(void);
@@ -76,31 +75,27 @@ void supervisor_init(void){
     cpus[mhartid].kstack = (uint64_t) &handler_stack[(mhartid + 1) << 12];
     cpus[mhartid].traphandler = (uint64_t) &kerneltrap;
     cpus[mhartid].id = mhartid;
-    mycpu = &cpus[mhartid]; // in task.c header
+    cpus[mhartid].ksatp = 0x0; 
+    w_sscratch((uint64_t) &cpus[mhartid]); //ok
 
 
     uint64_t default_sstatus = r_sstatus() | (1 << 18 )| (1 << 8) | (1 << 5) | (1 << 1);
     w_sstatus(default_sstatus); // maybe ok
     
-
-
     uint64_t pgtbl = kpgtbl_init(); 
     uint64_t ksatp = KSTVEC_MODE | KSTVEC_ASID | (pgtbl >> 12);
+   
     cpus[mhartid].ksatp = ksatp;
 
-    w_sscratch(ksatp); //ok
     w_satp(ksatp); //ok 
     asm volatile("sfence.vma x0, x0");
 
     //supervisor
     w_stvec(TRAMPOLINE); // ok
 
-
-
-
-    if(mhartid == 0){
-        ppgtbl((pagetable_t) pgtbl);
-    }
+    // if(mhartid == 0){
+    //     ppgtbl((pagetable_t) pgtbl);
+    // }
 
 }
 

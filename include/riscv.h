@@ -114,6 +114,14 @@ w_mepc(uint64_t x)
   asm volatile("csrw mepc, %0" : : "r" (x));
 }
 
+static inline uint64_t
+r_sepc(void)
+{
+  uint64_t x;
+  asm volatile("csrr %0, sepc" : "=r" (x) );
+  return x;
+}
+
 
 /**
  * ////////////////////////////////////////// 

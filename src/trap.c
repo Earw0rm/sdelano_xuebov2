@@ -34,6 +34,8 @@ void kerneltrap(void){
     uint64_t sstatus = r_sstatus(); 
     uint64_t scause = r_scause();
     uint64_t stval  = r_stval();
+    uint64_t sepc = r_sepc();
+    uint64_t mhartid = ((struct cpu *) r_sscratch())->id;
 
     if((sstatus & SPP_MASK) != 0){ // mean that pp is supervisor
 
@@ -43,8 +45,9 @@ void kerneltrap(void){
         if((scause & CAUSE_INTR_MASK) == 0){ //this is exception
 
             if((((scause & 0xff) == 0xd) | ((scause & 0xff) == 0xf))  && (stval < PHYMEMEND ) && (stval > PHYMEMSTART)){
- 
-               printf("Exception \r\n");
+                
+                printf("Demand paging exception. Status: %x, Scause: %x, Stval: %x, Sepc: %x, Mhartid: %x \r\n", sstatus, scause, stval, sepc, mhartid);
+
                 uint64_t satp = r_satp();
                 w_satp(0x0);
                 asm volatile("sfence.vma x0, x0");

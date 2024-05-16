@@ -55,7 +55,7 @@ struct task{
     uint8_t padding[8];
 };
 
-struct cpu{
+struct cpu{  
     struct task current_task; 
     uint64_t ksatp;  // 40 (cpu)
     uint64_t kstack; // 48
@@ -64,9 +64,7 @@ struct cpu{
 
     uint8_t noff; // hom much time we off interrupt
     uint8_t intena; // previous interrupt enable masks
-};
-
-extern struct cpu * mycpu;
+} __attribute__ ((aligned (0x1000)));
 
 
 #endif 

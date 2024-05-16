@@ -22,6 +22,9 @@ pte_t * walk(uint64_t va, pagetable_t pgtbl, bool alloc){
             pgtbl = (pagetable_t)(PTE2PA(*pte));
         }else if(alloc == true){
             uint64_t page = allocpage();
+
+ 
+
             memset((void *) page, 0, 0x1000);
             *pte = (PA2PTE(page) | PTE_V );
         }else{
@@ -50,6 +53,7 @@ int8_t mapva(uint64_t va, uint64_t pa, pagetable_t pgtbl,  uint16_t flags, bool 
         return 0;
 }
 
+
 uint64_t kpgtbl_init(void){
 
     uint8_t id = r_mhartid();
@@ -64,6 +68,8 @@ uint64_t kpgtbl_init(void){
     map_res = mapva(TRAMPOLINE, (uint64_t) kernelvec, pgtbl, PTE_XWR, true);
     map_res = mapva(MYCPU, (uint64_t) &cpus[id], pgtbl, PTE_XWR, true);
     map_res = mapva(UART, UART, pgtbl, PTE_XWR, true);
+
+
 
     return (uint64_t) pgtbl;
 }

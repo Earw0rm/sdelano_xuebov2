@@ -7,12 +7,15 @@
 #include "memlayout.h"
 #include "printf.h"
 #include "riscv.h"
+#include "utils.h"
+
 
 struct speenlock tasks_lock = {
     .cpu = 0,
     .locked = 0,
     .name = "clear"
 };
+
 //acquire lock for changes this 
 static int64_t tasks_count   = -1 ;
 static struct task tasks[NPROC] = {0};
@@ -35,9 +38,9 @@ struct task get_last(void){
 }
 
 void switch_to(struct task * new_task){ 
-
-    struct task old_task = mycpu->current_task;
-    mycpu->current_task = *new_task;
+    struct cpu * cpu = mycpu();
+    struct task old_task = cpu->current_task;
+    cpu->current_task = *new_task;
 
 
     if(old_task.pure){//sinse first task is not pure...
@@ -109,7 +112,7 @@ struct task user_task_create(uint8_t (*main)(void)){
     map_res = mapva((uint64_t) USTACKTOP, stack, (pagetable_t) pgtbl,  PTE_W | PTE_R | PTE_U, true);    
     map_res = mapva((uint64_t) 0x0, (uint64_t) main, (pagetable_t)  pgtbl, PTE_XWR | PTE_U, true);    
     map_res = mapva(TRAMPOLINE, (uint64_t) kernelvec, (pagetable_t) pgtbl, PTE_XWR, true);
-
+    map_res = mapva(MYCPU, (uint64_t) mycpu(), (pagetable_t) pgtbl, PTE_XWR, true);
 
 
     struct task task = task_create(0x0, pgtbl, stack, sstatus);

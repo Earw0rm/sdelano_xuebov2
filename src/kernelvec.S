@@ -47,8 +47,9 @@ kernelvec: # traframe
 
     # context saved
     # change to kernel pgtbl
-    csrr t2, sscratch
-    csrw satp, t2 
+    li t2, MYCPU
+    ld t2, 40(t2)
+    csrw satp, t2
     sfence.vma x0, x0 
 
     li t2, MYCPU 

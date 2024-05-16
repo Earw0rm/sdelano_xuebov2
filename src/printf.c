@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "speenlock.h"
 #include "uart.h"
 
-__attribute__((section(".thread_shared")))
+
 static struct speenlock printflock = {
     .cpu = 0,
     .locked = 0,

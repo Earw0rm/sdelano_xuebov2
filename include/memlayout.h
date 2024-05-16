@@ -30,6 +30,8 @@
 #define CLINT_MTIME (CLINT + 0xBFF8) 
 
 
+
+#define KSATP       0x380000000
 #define MYCPU       0x180000000
 #define PHYMEMSTART 0x80000000
 #define PHYMEMEND   0x87ffffff
