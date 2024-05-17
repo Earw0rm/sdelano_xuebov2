@@ -3,7 +3,7 @@
 .section .trampoline
 .globl kernelvec
 kernelvec: # traframe 
-    addi sp, sp, -256
+    addi sp, sp, -264
     sd ra, 0(sp)
     sd sp, 8(sp)
     sd gp, 16(sp)
@@ -111,5 +111,5 @@ kernelvecret: # traframe нам надо взять наш стэк с нача�
 
     ld t0, 32(sp)
 
-    addi sp, sp, 256
+    addi sp, sp, 264
     sret    

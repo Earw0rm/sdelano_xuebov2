@@ -75,7 +75,6 @@ void supervisor_init(void){
     cpus[mhartid].kstack = (uint64_t) &handler_stack[(mhartid + 1) << 12];
     cpus[mhartid].traphandler = (uint64_t) &kerneltrap;
     cpus[mhartid].id = mhartid;
-    cpus[mhartid].ksatp = 0x0; 
     w_sscratch((uint64_t) &cpus[mhartid]); //ok
 
 
