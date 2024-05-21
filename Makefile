@@ -1,7 +1,7 @@
 BUILD_DIR = ./build
 SOURCE_DIR = ./src
 CPREFIX ?=riscv64-unknown-elf-
-COPS = -Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -g -mcmodel=medany -mno-relax
+COPS = -Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -Iinclude/TH1520 -g -mcmodel=medany -mno-relax
 
 
 
@@ -21,6 +21,9 @@ OBJ_FILES += $(ASM_FILES:$(SOURCE_DIR)/%.S=$(BUILD_DIR)/%_s.o)
 DEP_FILES = $(OBJ_FILES:%.o=%.d)
 -include $(DEP_FILES)
 
+
+
+
 kernel.elf: linker.ld $(OBJ_FILES)
 	$(CPREFIX)ld -T linker.ld -o $(BUILD_DIR)/kernel.elf $(OBJ_FILES)
 	$(CPREFIX)objdump -D -S $(BUILD_DIR)/kernel.elf > $(BUILD_DIR)/__debug.txt
@@ -37,10 +40,15 @@ qemu_dump:
 	 -serial mon:stdio -bios none -machine dumpdtb=$(BUILD_DIR)/qemu-virt.dtb 
 	dtc -I dtb -O dts -o $(BUILD_DIR)/qemu-virt.dts $(BUILD_DIR)/qemu-virt.dtb
 # -d cpu,exec,int,mmu -D qemu-logfile.txt 
+
 qemu: clean all 
 	/home/foer/Documents/qemu-9.0.0/build/qemu-system-riscv64 -s -S -machine virt -cpu rv64 \
 	 -smp 4 -m 128M -nographic \
-	 -serial mon:stdio -bios none -kernel $(BUILD_DIR)/kernel.elf 
+	 -serial mon:stdio -bios u-boot/u-boot.bin -nographic -drive file=fat:rw:./rootfs,format=raw,media=disk -kernel $(BUILD_DIR)/kernel.elf 
+
+# -bios u-boot/u-boot.bin -nographic -drive file=fat:rw:./rootfs,format=raw,media=disk
+uboot-test:
+	qemu-system-riscv64 -machine virt -cpu max -bios u-boot/u-boot.bin -nographic
 
 debug: kernel.elf
 	gdb-multiarch ./build/kernel.elf -ex "target extended-remote localhost:1234"
