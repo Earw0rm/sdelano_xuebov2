@@ -53,8 +53,12 @@ struct ns16550a{
     volatile uint32_t rfw;           /* 0x78: receive  fifo write  */
 
     volatile uint32_t usr;           /* 0x7c: uart status register */
+
+    //This indicates the number of data entries in the transmit FIFO.
     volatile uint32_t tfl;           /* 0x80: transmit fifo level  */
+    //This indicates the number of data entries in the receive FIFO.
     volatile uint32_t rfl;           /* 0x84: receive fifo level   */
+
     volatile uint32_t srr;           /* 0x88: software reset register  */
     volatile uint32_t srts;          /* 0x8c: shadow request to send  */
     volatile uint32_t sbcr;          /* 0x90: shadow break control register  */
@@ -119,8 +123,5 @@ struct ns16550a{
 #define RFIFOR (1 << 1)
 //fifo enable
 #define FIFOE  (1)
-
-
-//LSR
 
 #endif 

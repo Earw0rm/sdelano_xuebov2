@@ -13,6 +13,8 @@
 #define CAUSE_INTR_MASK (1ull << 63)
 
 
+static uint8_t (*devintr_handlers[])(void);
+
 
 uint8_t askintr(void){
     uint64_t scause = r_scause();
