@@ -1,4 +1,4 @@
-#include "plic1520.h"
+#include "plicth1520.h"
 
 
 #define PLICC906 ((struct plicmap *) C906_PLIC_BASE)

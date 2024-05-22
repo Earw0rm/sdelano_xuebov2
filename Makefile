@@ -44,7 +44,7 @@ qemu_dump:
 qemu: clean all 
 	/home/foer/Documents/qemu-9.0.0/build/qemu-system-riscv64 -s -S -machine virt -cpu rv64 \
 	 -smp 4 -m 128M -nographic \
-	 -serial mon:stdio -bios u-boot/u-boot.bin -nographic -drive file=fat:rw:./rootfs,format=raw,media=disk -kernel $(BUILD_DIR)/kernel.elf 
+	 -serial mon:stdio -bios none -kernel $(BUILD_DIR)/kernel.elf 
 
 # -bios u-boot/u-boot.bin -nographic -drive file=fat:rw:./rootfs,format=raw,media=disk
 uboot-test:
