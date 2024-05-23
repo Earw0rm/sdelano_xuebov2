@@ -3,10 +3,15 @@
 
 #include "common.h"
 
+#define UART0BASE 0xFFE7014000
+#define UART1BASE 0xFFE7F00000
+#define UART2BASE 0xFFEC010000
+#define UART3BASE 0xFFE7F04000
+#define UART4BASE 0xFFF7F08000
+#define UART5BASE 0xFFF7F0C000
 
 
-
-struct ns16550a{
+struct uartmap{
     // &uart_sclk {
     // 	clock-frequency = <100000000>;
     // };
@@ -123,5 +128,63 @@ struct ns16550a{
 #define RFIFOR (1 << 1)
 //fifo enable
 #define FIFOE  (1)
+
+
+//LSR masks
+// To clear interrupt (error) we need to read LSR.
+// This is used to indicate if there is at least one parity error, framing error, or break indication in the FIFO.
+// This bit is cleared when the LSR is read and the character with the error is at the top of the receiver FIFO
+// and there are no subsequent errors in the FIFO.
+#define RECEIVE_FIFO_ERROR (1 << 7)
+//Transmitter Shift Register and the FIFO are both empty. 
+#define TRANSMITTER_EMPTY  (1 << 6)
+// If THRE_MODE_USER = Disabled or THRE mode is
+// disabled (IER[7] set to zero) and regardless of FIFO's
+// being implemented/enabled or not, this bit indicates
+// that the THR or TX FIFO is empty.
+#define TRANSMIT_HOLGING_EMPTY (1 << 5)
+// In the FIFO mode, the character associated with the
+// break condition is carried through the FIFO and is
+// revealed when the character is at the top of the FIFO.
+// Note: If a FIFO is full when a break condition is received, a FIFO overrun occurs. 
+// The break condition and all the information associated with itparity and framing errors-is discarded; 
+// any information that a break character was received is lost.
+#define BREAK_INTERRUPT (1 << 4)
+// This is used to indicate the occurrence of a framing
+// error in the receiver. A framing error occurs when the
+// receiver does not detect a valid STOP bit in the received data.
+// It should be noted that the Framing Error (FE) bit (LSR[3]) will be set if a break interrupt has occurred, as
+// indicated by Break Interrupt (BI) bit (LSR[4]). This happens because the break character implicitly
+// generates a framing error by holding the sin input to logic 0 for longer than the duration of a character.
+#define FRAMING_ERROR (1 << 3)
+// This is used to indicate the occurrence of a parity error
+// in the receiver if the Parity Enable (PEN) bit (LCR[3]) is set.
+// It should be noted that the Parity Error (PE) bit (LSR[2]) will be set if a break interrupt has occurred, as
+// indicated by Break Interrupt (BI) bit (LSR[4]).
+#define PARITY_ERROR (1 << 2)
+
+// This is used to indicate the occurrence of an overrun
+// error. This occurs if a new data character was received
+// before the previous data was read.
+#define OVERRUN_ERROR (1 << 1)
+
+// This is used to indicate that the receiver contains at
+// least one character in the RBR or the receiver FIFO. This
+// bit is cleared when the RBR is read in the non-FIFO
+// mode, or when the receiver FIFO is empty, in the FIFO mode.
+#define DATA_READY_BIT (1)
+
+void uartinit(void);
+
+typedef enum {UART_READ = 0, UART_WRITE = 1} UART_MODE;
+typedef enum {
+        ERROR_AT_TOP = -5,
+        FIFO_IS_CLEAR = -4,
+        NON_IMPLEMENTED = -3,
+        THRNONEMPTY = -2,
+        UNRESOLVED_CONDITION = -1,
+        OPSUCCESS = 0
+    } UART_OPERATION_STATUS;
+UART_OPERATION_STATUS uartrw(char * rw, UART_MODE mode);
 
 #endif 
