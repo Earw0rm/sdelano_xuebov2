@@ -3,9 +3,6 @@ SOURCE_DIR = ./src
 CPREFIX ?=riscv64-unknown-elf-
 COPS = -Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -Iinclude/TH1520 -g -mcmodel=medany -mno-relax
 
-
-
-
 $(BUILD_DIR)/%_c.o: $(SOURCE_DIR)/%.c
 	mkdir -p $(@D)
 	$(CPREFIX)gcc $(COPS) -MMD -c $< -o $@
@@ -22,7 +19,17 @@ DEP_FILES = $(OBJ_FILES:%.o=%.d)
 -include $(DEP_FILES)
 
 
+qemu_dump:
+	qemu-system-riscv64 -s -S -machine virt -cpu rv64 \
+	 -smp 4 -m 128M -nographic --trace a.out\
+	 -serial mon:stdio -bios none -machine dumpdtb=$(BUILD_DIR)/qemu-virt.dtb 
+	dtc -I dtb -O dts -o $(BUILD_DIR)/qemu-virt.dts $(BUILD_DIR)/qemu-virt.dtb
 
+qemu_flags:
+	$(COPS) += -DQEMU
+
+th1520_flags:
+	$(COPS) += -DTH1520
 
 kernel.elf: linker.ld $(OBJ_FILES)
 	$(CPREFIX)ld -T linker.ld -o $(BUILD_DIR)/kernel.elf $(OBJ_FILES)
@@ -34,17 +41,14 @@ clean:
 	rm -rf $(BUILD_DIR)/*
 	rm -f qemu-logfile.txt
 
-qemu_dump:
-	qemu-system-riscv64 -s -S -machine virt -cpu rv64 \
-	 -smp 4 -m 128M -nographic --trace a.out\
-	 -serial mon:stdio -bios none -machine dumpdtb=$(BUILD_DIR)/qemu-virt.dtb 
-	dtc -I dtb -O dts -o $(BUILD_DIR)/qemu-virt.dts $(BUILD_DIR)/qemu-virt.dtb
-# -d cpu,exec,int,mmu -D qemu-logfile.txt 
 
-qemu: clean all 
+# -d cpu,exec,int,mmu -D qemu-logfile.txt 
+qemu: clean qemu_flags all 
 	/home/foer/Documents/qemu-9.0.0/build/qemu-system-riscv64 -s -S -machine virt -cpu rv64 \
 	 -smp 4 -m 128M -nographic \
 	 -serial mon:stdio -bios none -kernel $(BUILD_DIR)/kernel.elf 
+
+th1520: th1520_flags all
 
 # -bios u-boot/u-boot.bin -nographic -drive file=fat:rw:./rootfs,format=raw,media=disk
 uboot-test:

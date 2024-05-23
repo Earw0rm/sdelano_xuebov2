@@ -1,4 +1,4 @@
-#include "uart.h"
+#include "uartqemu.h"
 #include "common.h"
 #include "speenlock.h"
 
